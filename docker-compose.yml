@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: simple-router
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/data/dev.db
+      - JWT_SECRET=${JWT_SECRET:-change-me}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-change-me}
+      - REDIS_URL=${REDIS_URL:-}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@localhost}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin1234}
+    volumes:
+      - data:/app/data
+    restart: unless-stopped
+
+volumes:
+  data:
