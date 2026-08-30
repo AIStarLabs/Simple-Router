@@ -54,6 +54,8 @@ CREATE TABLE "ProviderModel" (
     "supportsVision" BOOLEAN NOT NULL DEFAULT false,
     "supportsImage" BOOLEAN NOT NULL DEFAULT false,
     "supportsReasoning" BOOLEAN NOT NULL DEFAULT false,
+    "supportsVietnamese" BOOLEAN NOT NULL DEFAULT false,
+    "bestTaskTags" TEXT NOT NULL DEFAULT '[]',
     "metadata" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,

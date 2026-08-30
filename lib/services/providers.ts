@@ -5,6 +5,7 @@ import { getPreset } from "@/lib/providers/presets";
 import { getAdapter } from "@/lib/providers/registry";
 import { splitThinkingBlocks } from "@/lib/providers/thinking";
 import type { ProviderType } from "@prisma/client";
+import { serializeTags } from "@/lib/providers/types";
 
 export async function listProviders() {
   return prisma.provider.findMany({
@@ -71,6 +72,8 @@ export async function createProvider(data: {
         supportsVision: m.supportsVision ?? false,
         supportsImage: m.supportsImage ?? false,
         supportsReasoning: m.supportsReasoning ?? false,
+        supportsVietnamese: m.supportsVietnamese ?? false,
+        bestTaskTags: serializeTags(m.bestTaskTags),
       })),
     });
   }
@@ -162,6 +165,8 @@ export async function seedPresetModels(providerId: string) {
         supportsVision: m.supportsVision ?? false,
         supportsImage: m.supportsImage ?? false,
         supportsReasoning: m.supportsReasoning ?? false,
+        supportsVietnamese: m.supportsVietnamese ?? false,
+        bestTaskTags: serializeTags(m.bestTaskTags),
       },
     });
     count++;

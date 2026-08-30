@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "crypto";
 import { PROVIDER_PRESETS } from "../lib/providers/presets";
 import { encryptSecret } from "../lib/crypto";
+import { serializeTags } from "../lib/providers/types";
 
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || "file:./dev.db" });
 const prisma = new PrismaClient({ adapter });
@@ -59,6 +60,8 @@ async function main() {
         supportsVision: m.supportsVision ?? false,
         supportsImage: m.supportsImage ?? false,
         supportsReasoning: m.supportsReasoning ?? false,
+        supportsVietnamese: m.supportsVietnamese ?? false,
+        bestTaskTags: serializeTags(m.bestTaskTags),
       })),
     });
     console.log(`✔ Seeded provider ${preset.name} (${preset.models.length} models)`);

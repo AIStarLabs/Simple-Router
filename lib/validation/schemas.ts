@@ -154,6 +154,8 @@ export const providerModelSchema = z.object({
   supportsVision: z.boolean().default(false),
   supportsImage: z.boolean().default(false),
   supportsReasoning: z.boolean().default(false),
+  supportsVietnamese: z.boolean().default(false),
+  bestTaskTags: z.array(z.string()).default([]),
   metadata: z.string().optional(),
 });
 

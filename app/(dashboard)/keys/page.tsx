@@ -61,7 +61,14 @@ const STRATEGIES = [
 
 export default function KeysPage() {
   const [keys, setKeys] = useState<InboundKey[]>([]);
-  const [models, setModels] = useState<Array<{ id: string; modelId: string; provider: { name: string } }>>([]);
+  const [models, setModels] = useState<
+    Array<{
+      id: string;
+      modelId: string;
+      enabled: boolean;
+      provider: { name: string; enabled: boolean };
+    }>
+  >([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [name, setName] = useState("");
@@ -78,7 +85,7 @@ export default function KeysPage() {
     try {
       const [keyData, modelData] = await Promise.all([
         api<{ keys: InboundKey[] }>("/api/admin/keys"),
-        api<{ models: Array<{ id: string; modelId: string; provider: { name: string } }> }>("/api/admin/models"),
+        api<{ models: Array<{ id: string; modelId: string; enabled: boolean; provider: { name: string; enabled: boolean } }> }>("/api/admin/models"),
       ]);
       setKeys(keyData.keys);
       setModels(modelData.models);
@@ -173,6 +180,8 @@ export default function KeysPage() {
     navigator.clipboard.writeText(key);
     toast.success("Copied to clipboard");
   }
+
+  const availableModels = models.filter((m) => m.enabled && m.provider.enabled);
 
   return (
     <>
@@ -348,12 +357,12 @@ export default function KeysPage() {
                 </span>
               </Label>
               <div className="max-h-52 space-y-1 overflow-y-auto rounded-md border p-2">
-                {models.length === 0 ? (
+                {availableModels.length === 0 ? (
                   <p className="p-2 text-sm text-muted-foreground">
-                    No models in the catalog yet.
+                    No enabled models in enabled providers.
                   </p>
                 ) : (
-                  models.map((m) => (
+                  availableModels.map((m) => (
                     <label
                       key={m.id}
                       className="flex cursor-pointer items-center gap-2 rounded p-1.5 text-sm hover:bg-accent/50"

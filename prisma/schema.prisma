@@ -92,6 +92,8 @@ model ProviderModel {
   supportsVision    Boolean                 @default(false)
   supportsImage     Boolean                 @default(false)
   supportsReasoning Boolean                 @default(false)
+  supportsVietnamese Boolean                @default(false)
+  bestTaskTags      String                  @default("[]")
   metadata          String?
   permissions       InboundModelPermission[]
   usageLogs         UsageLog[]

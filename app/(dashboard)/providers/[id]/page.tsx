@@ -72,6 +72,8 @@ interface ProviderModel {
   supportsVision: boolean;
   supportsImage: boolean;
   supportsReasoning: boolean;
+  supportsVietnamese: boolean;
+  bestTaskTags: string[];
   _count?: { permissions: number };
 }
 
@@ -107,6 +109,8 @@ export default function ProviderDetailPage() {
   const [modelVision, setModelVision] = useState(false);
   const [modelImage, setModelImage] = useState(false);
   const [modelReasoning, setModelReasoning] = useState(false);
+  const [modelVietnamese, setModelVietnamese] = useState(false);
+  const [modelTags, setModelTags] = useState("");
   const [savingModel, setSavingModel] = useState(false);
   const { confirm, dialog } = useConfirm();
 
@@ -204,6 +208,21 @@ export default function ProviderDetailPage() {
     }
   }
 
+  function deleteModel(m: ProviderModel) {
+    confirm(
+      {
+        title: "Delete model",
+        description: `Delete "${m.modelId}" from this provider? Any API key grants on it will be removed.`,
+        confirmLabel: "Delete",
+      },
+      async () => {
+        await api(`/api/admin/models/${m.id}`, { method: "DELETE" });
+        toast.success("Model deleted");
+        await load();
+      }
+    );
+  }
+
   async function seedModels() {
     try {
       const res = await api<{ count: number }>(`/api/admin/providers/${id}/models`, {
@@ -230,6 +249,11 @@ export default function ProviderDetailPage() {
           supportsVision: modelVision,
           supportsImage: modelImage,
           supportsReasoning: modelReasoning,
+          supportsVietnamese: modelVietnamese,
+          bestTaskTags: modelTags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
         }),
       });
       toast.success("Model added");
@@ -240,6 +264,8 @@ export default function ProviderDetailPage() {
       setModelVision(false);
       setModelImage(false);
       setModelReasoning(false);
+      setModelVietnamese(false);
+      setModelTags("");
       await load();
     } catch (e) {
       toast.error((e as Error).message);
@@ -431,12 +457,13 @@ export default function ProviderDetailPage() {
                   <TableHead>Display Name</TableHead>
                   <TableHead>Capabilities</TableHead>
                   <TableHead>Enabled</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {models.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                       No models yet. Seed presets or add a model manually.
                     </TableCell>
                   </TableRow>
@@ -450,6 +477,12 @@ export default function ProviderDetailPage() {
                           {m.supportsVision ? <Badge variant="secondary">vision</Badge> : null}
                           {m.supportsImage ? <Badge variant="secondary">image</Badge> : null}
                           {m.supportsReasoning ? <Badge variant="secondary">reasoning</Badge> : null}
+                          {m.supportsVietnamese ? <Badge variant="secondary">Vietnamese</Badge> : null}
+                          {m.bestTaskTags.map((tag) => (
+                            <Badge key={tag} variant="outline">
+                              {tag}
+                            </Badge>
+                          ))}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -457,6 +490,17 @@ export default function ProviderDetailPage() {
                           checked={m.enabled}
                           onCheckedChange={() => toggleModel(m.id, m.enabled)}
                         />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => deleteModel(m)}
+                          title={`Delete ${m.modelId}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -640,7 +684,22 @@ export default function ProviderDetailPage() {
                   />
                   Reasoning
                 </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={modelVietnamese}
+                    onCheckedChange={(v) => setModelVietnamese(Boolean(v))}
+                  />
+                  Vietnamese
+                </label>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Best task tags (comma-separated)</Label>
+              <Input
+                value={modelTags}
+                onChange={(e) => setModelTags(e.target.value)}
+                placeholder="code, natural language, agentic"
+              />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setModelOpen(false)}>

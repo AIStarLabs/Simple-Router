@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminGuard } from "@/lib/auth/admin-api";
 import { prisma } from "@/lib/db";
 import { seedPresetModels } from "@/lib/services/providers";
+import { parseTags } from "@/lib/providers/types";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,9 @@ export async function GET(_req: Request, ctx: Ctx) {
     where: { providerId: id },
     orderBy: { createdAt: "asc" },
   });
-  return NextResponse.json({ models });
+  return NextResponse.json({
+    models: models.map((m) => ({ ...m, bestTaskTags: parseTags(m.bestTaskTags) })),
+  });
 }
 
 export async function POST(_req: Request, ctx: Ctx) {

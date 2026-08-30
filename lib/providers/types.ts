@@ -113,6 +113,8 @@ export interface ProviderPresetModel {
   supportsVision?: boolean;
   supportsImage?: boolean;
   supportsReasoning?: boolean;
+  supportsVietnamese?: boolean;
+  bestTaskTags?: string[];
   maxContext?: number;
 }
 
@@ -135,4 +137,19 @@ export interface OpenAIErrorBody {
 
 export function openAIError(message: string, code = "invalid_request_error"): OpenAIErrorBody {
   return { error: { message, type: code, param: null, code } };
+}
+
+/** bestTaskTags is stored in the database as a JSON-encoded string. */
+export function serializeTags(tags: string[] | undefined | null): string {
+  return JSON.stringify(tags ?? []);
+}
+
+export function parseTags(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((t): t is string => typeof t === "string") : [];
+  } catch {
+    return [];
+  }
 }

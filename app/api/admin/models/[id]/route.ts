@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { adminGuard } from "@/lib/auth/admin-api";
 import { prisma } from "@/lib/db";
+import { serializeTags } from "@/lib/providers/types";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,12 @@ export async function PATCH(req: Request, ctx: Ctx) {
           record.supportsImage === undefined ? undefined : Boolean(record.supportsImage),
         supportsReasoning:
           record.supportsReasoning === undefined ? undefined : Boolean(record.supportsReasoning),
+        supportsVietnamese:
+          record.supportsVietnamese === undefined ? undefined : Boolean(record.supportsVietnamese),
+        bestTaskTags:
+          record.bestTaskTags === undefined
+            ? undefined
+            : serializeTags(Array.isArray(record.bestTaskTags) ? record.bestTaskTags : []),
         metadata: record.metadata === undefined ? undefined : String(record.metadata),
       },
     });

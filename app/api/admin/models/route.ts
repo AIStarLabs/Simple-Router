@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminGuard } from "@/lib/auth/admin-api";
 import { prisma } from "@/lib/db";
 import { providerModelSchema } from "@/lib/validation/schemas";
+import { parseTags, serializeTags } from "@/lib/providers/types";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,9 @@ export async function GET(req: Request) {
     },
     orderBy: [{ providerId: "asc" }, { createdAt: "asc" }],
   });
-  return NextResponse.json({ models });
+  return NextResponse.json({
+    models: models.map((m) => ({ ...m, bestTaskTags: parseTags(m.bestTaskTags) })),
+  });
 }
 
 export async function POST(req: Request) {
@@ -64,6 +67,8 @@ export async function POST(req: Request) {
         supportsVision: parsed.data.supportsVision,
         supportsImage: parsed.data.supportsImage,
         supportsReasoning: parsed.data.supportsReasoning,
+        supportsVietnamese: parsed.data.supportsVietnamese,
+        bestTaskTags: serializeTags(parsed.data.bestTaskTags),
         metadata: parsed.data.metadata ?? null,
       },
     });

@@ -49,6 +49,8 @@ interface ModelRow {
   supportsVision: boolean;
   supportsImage: boolean;
   supportsReasoning: boolean;
+  supportsVietnamese: boolean;
+  bestTaskTags: string[];
   provider: { id: string; name: string; type: string };
   _count: { permissions: number };
 }
@@ -91,6 +93,8 @@ export default function ModelsPage() {
   const [addVision, setAddVision] = useState(false);
   const [addImage, setAddImage] = useState(false);
   const [addReasoning, setAddReasoning] = useState(false);
+  const [addVietnamese, setAddVietnamese] = useState(false);
+  const [addTags, setAddTags] = useState("");
   const [savingModel, setSavingModel] = useState(false);
   const { confirm, dialog } = useConfirm();
 
@@ -177,6 +181,11 @@ export default function ModelsPage() {
           supportsVision: addVision,
           supportsImage: addImage,
           supportsReasoning: addReasoning,
+          supportsVietnamese: addVietnamese,
+          bestTaskTags: addTags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
         }),
       });
       toast.success("Model added");
@@ -188,6 +197,8 @@ export default function ModelsPage() {
       setAddVision(false);
       setAddImage(false);
       setAddReasoning(false);
+      setAddVietnamese(false);
+      setAddTags("");
       await load();
     } catch (e) {
       toast.error((e as Error).message);
@@ -320,6 +331,12 @@ export default function ModelsPage() {
                       {m.supportsVision ? <Badge variant="secondary">vision</Badge> : null}
                       {m.supportsImage ? <Badge variant="secondary">image</Badge> : null}
                       {m.supportsReasoning ? <Badge variant="secondary">reasoning</Badge> : null}
+                      {m.supportsVietnamese ? <Badge variant="secondary">Vietnamese</Badge> : null}
+                      {m.bestTaskTags.map((tag) => (
+                        <Badge key={tag} variant="outline">
+                          {tag}
+                        </Badge>
+                      ))}
                     </div>
                   </TableCell>
                   <TableCell>{m._count.permissions}</TableCell>
@@ -546,7 +563,22 @@ export default function ModelsPage() {
                   />
                   Reasoning
                 </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={addVietnamese}
+                    onCheckedChange={(v) => setAddVietnamese(Boolean(v))}
+                  />
+                  Vietnamese
+                </label>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Best task tags (comma-separated)</Label>
+              <Input
+                value={addTags}
+                onChange={(e) => setAddTags(e.target.value)}
+                placeholder="code, natural language, agentic"
+              />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setModelOpen(false)}>

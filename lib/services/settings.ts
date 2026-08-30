@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/db";
 import { generateApiKey, encryptSecret } from "@/lib/crypto";
 import { hashApiKey } from "@/lib/services/api-keys";
+import { parseTags, serializeTags } from "@/lib/providers/types";
 
 export async function getSettings() {
   const [jwt, encryption, redis] = await Promise.all([
@@ -47,6 +48,8 @@ export interface ExportConfig {
       supportsVision?: boolean;
       supportsImage?: boolean;
       supportsReasoning?: boolean;
+      supportsVietnamese?: boolean;
+      bestTaskTags?: string[];
     }>;
   }>;
   inboundKeys: Array<{
@@ -91,6 +94,8 @@ export async function exportConfig(): Promise<ExportConfig> {
         supportsVision: m.supportsVision,
         supportsImage: m.supportsImage,
         supportsReasoning: m.supportsReasoning,
+        supportsVietnamese: m.supportsVietnamese,
+        bestTaskTags: parseTags(m.bestTaskTags),
       })),
     })),
     inboundKeys: inboundKeys.map((k) => ({
@@ -148,6 +153,8 @@ export async function importConfig(data: ExportConfig) {
           supportsVision: m.supportsVision ?? false,
           supportsImage: m.supportsImage ?? false,
           supportsReasoning: m.supportsReasoning ?? false,
+          supportsVietnamese: m.supportsVietnamese ?? false,
+          bestTaskTags: serializeTags(m.bestTaskTags),
         },
         create: {
           providerId: provider.id,
@@ -158,6 +165,8 @@ export async function importConfig(data: ExportConfig) {
           supportsVision: m.supportsVision ?? false,
           supportsImage: m.supportsImage ?? false,
           supportsReasoning: m.supportsReasoning ?? false,
+          supportsVietnamese: m.supportsVietnamese ?? false,
+          bestTaskTags: serializeTags(m.bestTaskTags),
         },
       });
       modelIdByKey.set(`${p.name}:${m.modelId}`, model.id);
